@@ -75,6 +75,37 @@ Keep `-fsSL`: the `-L` follows the redirect (see Deployment).
    `"${CONFLOOSE_BASE:-https://sayt-0.github.io/Confloose}/confloose/..."`.
 2. Add a `name<TAB>description` line to `confloose/manifest.txt`.
 
+## Contributing
+
+Contributions are welcome: new confloose, fixes, better antidotes. Keep in mind that
+`main` is served as-is by GitHub Pages, so whatever gets merged runs on the machine
+of everyone who pipes `confloose.sayto.dev` into `bash`. Every change therefore goes
+through a pull request and is reviewed line by line.
+
+1. Fork the repo and branch off `main`.
+2. Make your change, following [Adding a confloose](#adding-a-confloose) for a new
+   one.
+3. Test it with the local server shown in [How it works](#how-it-works): apply the
+   confloose, run its antidote, and check that your dotfiles are back to their
+   previous state.
+4. Open a pull request against `main`, one confloose per PR, saying what it does,
+   how the antidote undoes it and where it was tested.
+
+A confloose is merged only if it:
+
+- has an antidote that undoes all of it and nothing else: never the user's own
+  edits or another confloose (see the tagging in [How it works](#how-it-works));
+- stays user-level: no `sudo`, and anything it installs lives under `$HOME` (or
+  `$AFS_DIR`);
+- loses no user data: a file it replaces is backed up and put back by the antidote
+  (like `alacritty-color`);
+- sends nothing off the machine;
+- downloads remote files only through `CONFLOOSE_BASE`, never from another host;
+- ships sources rather than prebuilt binaries (like `fake-i3lock`, built on the
+  target), so the whole diff can be reviewed;
+- only includes pictures or recordings of people who agreed to it;
+- is creative and knows no limits (well, apart from the ones above).
+
 ## Deployment
 
 ### 1. GitHub Pages (hosts the script)

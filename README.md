@@ -88,7 +88,17 @@ through a pull request and is reviewed line by line.
 3. Test it with the local server shown in [How it works](#how-it-works): apply the
    confloose, run its antidote, and check that your dotfiles are back to their
    previous state.
-4. Open a pull request against `main`, one confloose per PR, saying what it does,
+4. Run the checks that CI runs on every pull request (both must pass):
+
+   ```sh
+   bash tests/lint.sh    # syntax, ShellCheck, manifest, download URLs
+   bash tests/smoke.sh   # applies then undoes each confloose in a throwaway HOME
+   ```
+
+   `smoke.sh` is safe to run on your machine: it stubs out the X11/i3 tools and
+   never touches your session. A confloose that starts a background daemon cannot
+   be checked that way and goes in its `SKIP` list.
+5. Open a pull request against `main`, one confloose per PR, saying what it does,
    how the antidote undoes it and where it was tested.
 
 A confloose is merged only if it:
@@ -104,7 +114,7 @@ A confloose is merged only if it:
 - ships sources rather than prebuilt binaries (like `fake-i3lock`, built on the
   target), so the whole diff can be reviewed;
 - only includes pictures or recordings of people who agreed to it;
-- is creative and knows no limits (well, apart from the ones above).
+- is creative and knows no limits 😈 (well, apart from the ones above).
 
 ## Deployment
 

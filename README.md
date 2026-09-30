@@ -13,10 +13,10 @@ root) and **reversible**.
 
 ```sh
 # Interactive menu
-curl -fsSL confloose.sayto.dev | bash
+curl confloose.sayto.dev | bash
 
 # Or, without a domain, straight from GitHub Pages
-curl -fsSL https://sayt-0.github.io/Confloose/install.sh | bash
+curl https://sayt-0.github.io/Confloose/install.sh | bash
 ```
 
 In the menu:
@@ -29,16 +29,18 @@ In the menu:
 
 ```sh
 # Apply one or more confloose
-curl -fsSL confloose.sayto.dev | bash -s -- de-keyboard flip-screen
+curl confloose.sayto.dev | bash -s -- de-keyboard flip-screen
 
 # Antidote (undo)
-curl -fsSL confloose.sayto.dev | bash -s -- -a de-keyboard flip-screen
+curl confloose.sayto.dev | bash -s -- -a de-keyboard flip-screen
 
 # List the confloose installed on this machine
-curl -fsSL confloose.sayto.dev | bash -s -- -l
+curl confloose.sayto.dev | bash -s -- -l
 ```
 
-Keep `-fsSL`: the `-L` follows the redirect (see Deployment).
+The commands leave the flags off for brevity. Add `-fsSL` if you want curl to fail on
+an HTTP error instead of piping the error page into `bash` (plus stay quiet and follow
+redirects).
 
 ## How it works
 
@@ -123,19 +125,23 @@ A confloose is merged only if it:
 Settings > Pages > Source: branch `main`, folder `/` (root). Then check:
 
 ```sh
-curl -fsSL https://sayt-0.github.io/Confloose/install.sh | head
+curl https://sayt-0.github.io/Confloose/install.sh | head
 ```
 
 The `.nojekyll` file makes Pages serve the files as-is.
 
 ### 2. Custom domain (shorter curl)
 
-`confloose.sayto.dev` is set up as an HTTP redirect to the Pages `install.sh`, so
-the short form works:
+`confloose.sayto.dev` serves the Pages `install.sh` directly: a small proxy in front
+of GitHub Pages returns the installer for the domain root, so the short form works:
 
 ```sh
-curl -fsSL confloose.sayto.dev | bash
+curl confloose.sayto.dev | bash
 ```
+
+The domain only fronts the installer; `install.sh` still downloads each confloose from
+the Pages URL in `CONFLOOSE_BASE` (`https://sayt-0.github.io/Confloose`), which is why
+that default stays on `sayt-0.github.io`.
 
 > If the repo is renamed (e.g. to lowercase `confloose`), update the default
 > `CONFLOOSE_BASE` URL at the top of `install.sh`.

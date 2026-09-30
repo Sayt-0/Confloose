@@ -21,7 +21,7 @@ if [ ! -f "$backup" ] && [ ! -f "$absent" ]; then
 fi
 
 tmpfile=$(mktemp)
-if curl -fsSL "${CONFLOOSE_BASE:-https://louismoretti.github.io/Confloose}/confloose/alacritty-color/config.toml" > "$tmpfile"; then
+if curl -fsSL "${CONFLOOSE_BASE:-https://sayt-0.github.io/Confloose}/confloose/alacritty-color/config.toml" > "$tmpfile"; then
     chmod 644 "$tmpfile"   # mktemp gives 0600, which would outlive the antidote
     mv "$tmpfile" "$file"
 else

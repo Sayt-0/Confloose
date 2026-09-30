@@ -16,7 +16,7 @@ root) and **reversible**.
 curl -fsSL confloose.sayto.dev | bash
 
 # Or, without a domain, straight from GitHub Pages
-curl -fsSL https://louismoretti.github.io/Confloose/install.sh | bash
+curl -fsSL https://sayt-0.github.io/Confloose/install.sh | bash
 ```
 
 In the menu:
@@ -72,7 +72,7 @@ Keep `-fsSL`: the `-L` follows the redirect (see Deployment).
 
 1. Create `confloose/<name>/confloose.sh` (apply) and `confloose/<name>/antidote.sh`
    (undo). For any remote resource, use
-   `"${CONFLOOSE_BASE:-https://louismoretti.github.io/Confloose}/confloose/..."`.
+   `"${CONFLOOSE_BASE:-https://sayt-0.github.io/Confloose}/confloose/..."`.
 2. Add a `name<TAB>description` line to `confloose/manifest.txt`.
 
 ## Deployment
@@ -82,7 +82,7 @@ Keep `-fsSL`: the `-L` follows the redirect (see Deployment).
 Settings > Pages > Source: branch `main`, folder `/` (root). Then check:
 
 ```sh
-curl -fsSL https://louismoretti.github.io/Confloose/install.sh | head
+curl -fsSL https://sayt-0.github.io/Confloose/install.sh | head
 ```
 
 The `.nojekyll` file makes Pages serve the files as-is.

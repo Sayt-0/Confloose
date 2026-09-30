@@ -14,7 +14,7 @@ set -u
 
 # Base URL the confloose are downloaded from. Override it for local testing:
 #   CONFLOOSE_BASE=http://127.0.0.1:8000 bash install.sh
-CONFLOOSE_BASE="${CONFLOOSE_BASE:-https://louismoretti.github.io/Confloose}"
+CONFLOOSE_BASE="${CONFLOOSE_BASE:-https://sayt-0.github.io/Confloose}"
 export CONFLOOSE_BASE
 
 # With `curl | bash`, stdin is taken by the piped script, so menu answers are read

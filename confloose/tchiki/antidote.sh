@@ -12,5 +12,5 @@ for pidfile in "$lockdir/pid" "$lockdir/player_pid"; do
     kill -0 "$pid" 2>/dev/null && kill -9 "$pid" 2>/dev/null
 done
 rm -rf "$lockdir" "$base/bin/tchiki"
-curl -fsSL "${CONFLOOSE_BASE:-https://louismoretti.github.io/Confloose}/confloose/bashrc_antidote_base.sh" | sh -s -- "tchiki"
+curl -fsSL "${CONFLOOSE_BASE:-https://sayt-0.github.io/Confloose}/confloose/bashrc_antidote_base.sh" | sh -s -- "tchiki"
 for name in bashrc zshrc; do [ -f "$HOME/.$name" ] && ( . "$HOME/.$name" ) 2>/dev/null; done; true

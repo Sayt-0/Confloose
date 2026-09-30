@@ -3,7 +3,7 @@
 
 dir="${AFS_DIR:-$HOME}/.confloose/bin/tchiki"
 file="$dir/confloose-tchiki"
-base="${CONFLOOSE_BASE:-https://louismoretti.github.io/Confloose}"
+base="${CONFLOOSE_BASE:-https://sayt-0.github.io/Confloose}"
 mkdir -p "$dir"
 
 # Any failed download: install nothing and exit non-zero so install.sh records nothing.

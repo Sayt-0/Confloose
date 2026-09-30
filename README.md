@@ -114,7 +114,7 @@ A confloose is merged only if it:
 - ships sources rather than prebuilt binaries (like `fake-i3lock`, built on the
   target), so the whole diff can be reviewed;
 - only includes pictures or recordings of people who agreed to it;
-- is creative and knows no limits (well, apart from the ones above).
+- is creative and knows no limits 😈 (well, apart from the ones above).
 
 ## Deployment
 

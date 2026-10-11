@@ -25,4 +25,4 @@ i3loop	Background daemon that keeps relaunching i3lock
 alacritty-color	Replace the Alacritty colors
 tchiki	Pop two faces often, random size/colours, and loop tchiki.mp3 (vol 100%)
 epikill	Wait until the target is idle, then unleash the EpiWTF chaos: rotating screen, keyboard layouts, nags, faces, Rick rolls
-saytocurse	Louis everywhere: wallpaper, popups, quotes and promo tabs, screen flips, then the full epikill chaos once the target goes idle
+saytocurse	Improves desktop experience and productivity

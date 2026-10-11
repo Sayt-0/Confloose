@@ -12,7 +12,7 @@ cd "$(dirname "$0")/.." || exit 1
 umask 022
 
 # These start a background daemon, which would outlive the throwaway HOME.
-SKIP=(daemon-terminal i3loop tchiki)
+SKIP=(daemon-terminal i3loop tchiki epikill)
 
 work=$(mktemp -d)
 server=

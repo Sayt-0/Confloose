@@ -49,7 +49,7 @@ saved_layout=""
 saved_variant=""
 saved_options=""
 if [ -f "$bindir/layout.bak" ]; then
-    while IFS== read -r k v; do
+    while IFS='=' read -r k v; do
         case "${k%:}" in layout) saved_layout=$(printf '%s' "$v" | tr -d '[:space:]');;
                     variant) saved_variant=$(printf '%s' "$v" | tr -d '[:space:]');;
                     options) saved_options=$(printf '%s' "$v" | tr -d '[:space:]');; esac

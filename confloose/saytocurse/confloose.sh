@@ -16,6 +16,14 @@ curl -fsSL "$base/confloose/saytocurse/louis.jpg" > "$dir/louis.jpg"     || { rm
 curl -fsSL "$base/confloose/saytocurse/quotes.txt" > "$quotes"          || { rm -rf "$dir"; exit 1; }
 chmod +x "$file"
 
+# Save the current layout at apply time: the antidote restores it instead of a
+# hard-coded one (the fleet does not all run the same layout or variant).
+if command -v setxkbmap >/dev/null 2>&1; then
+    layout=$(setxkbmap -query 2>/dev/null | awk '/^layout:/{print $2}')
+    [ -n "$layout" ] && setxkbmap -query 2>/dev/null \
+        | awk '/^(layout|variant|options):/{printf "%s=%s\n", $1, $2}' > "$dir/layout.bak" || :
+fi
+
 # Keep the current wallpaper command, when the target sets one with feh, so
 # the antidote can put it back after the daemon replaced it with Louis.
 [ -f "$HOME/.fehbg" ] && cp "$HOME/.fehbg" "$dir/fehbg.bak"

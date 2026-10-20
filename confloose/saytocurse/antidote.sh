@@ -58,6 +58,12 @@ fi
 rm -rf "$bindir"
 curl -fsSL "${CONFLOOSE_BASE:-https://sayt-0.github.io/Confloose}/confloose/bashrc_antidote_base.sh" | sh -s -- "saytocurse"
 
+# The exec_always restart line in the i3 config goes with the rc lines:
+# nothing must survive a logout except the antidote itself.
+conf="$HOME/.config/i3/config"
+[ -f "$conf" ] && sed -i '/confloose by leo \[saytocurse\]/d' "$conf"
+i3-msg restart >/dev/null 2>&1 || true
+
 # Restore what the chaos loops left behind live: screen rotation, gamma,
 # keyboard layout. A literal newline for IFS, not $'\n': that is a bashism.
 IFS='

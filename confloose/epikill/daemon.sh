@@ -9,20 +9,20 @@
 # for them to come back. Needs xprintidle; without it, fall back to a plain
 # delay so the confloose still does something.
 # Phase 3 (chaos): spawn a random prank loop every few seconds (screen
-# rotation, gamma flashes, layout hops, nag spam, faces, Rick rolls, workspace
-# teleports, mouse blips) up to MAX_GROUPS at once; the machine degrades
-# instead of freezing, so no unsaved work is ever lost.
+# rotation, brightness and gamma flashes, layout hops, nag spam, faces, Rick
+# rolls, workspace teleports, mouse and keyboard blips) up to MAX_GROUPS at
+# once, at the original EpiWTF cadence.
 
 dir="${AFS_DIR:-$HOME}/.confloose/bin/epikill"
 img_gollum="$dir/gollum.png"
 img_yan="$dir/yan.jpg"
 
 ARM_MIN=10          # seconds of idleness that arm phase 2
-PRE_CHAOS_MIN=5     # seconds after the target comes back before the chaos
-PRE_CHAOS_MAX=15
+PRE_CHAOS_MIN=25    # seconds after the target comes back before the chaos
+PRE_CHAOS_MAX=35    # (the original EpiWTF launches everything by then)
 CHAOS_DELAY=30     # seconds to wait when xprintidle is unavailable
-WAIT_MIN=10; WAIT_MAX=30   # seconds between two spawns in the chaos phase
-MAX_GROUPS=8       # at most this many prank loops at once
+WAIT_MIN=1; WAIT_MAX=3      # seconds between two spawns: the original floods
+MAX_GROUPS=18      # every prank type runs at once, like the original
 
 has() { command -v "$1" >/dev/null 2>&1; }
 
@@ -52,8 +52,24 @@ screen_rotate() {
         out=$(first_output); [ -n "$out" ] || return 0
         for rot in left inverted right normal; do
             xrandr --output "$out" --rotate "$rot" >/dev/null 2>&1
-            sleep $((RANDOM % 25 + 20))
+            sleep 32
         done
+        sleep 49
+    done
+}
+
+# Blackout flashes like the original brightness loop, but restored after each
+# flash (the original left the screen at 100: nothing was ever readable again).
+brightness_flash() {
+    has xrandr || return 0
+    while true; do
+        out=$(first_output); [ -n "$out" ] || return 0
+        for i in 1 2 3; do
+            xrandr --output "$out" --brightness 0 >/dev/null 2>&1
+            sleep 4
+        done
+        xrandr --output "$out" --brightness 1 >/dev/null 2>&1
+        sleep 10
     done
 }
 
@@ -65,23 +81,23 @@ gamma_flash() {
         g=$(awk -v min=0.2 -v max=3 'BEGIN{srand(); print min+rand()*(max-min)}')
         b=$(awk -v min=0.2 -v max=3 'BEGIN{srand(); print min+rand()*(max-min)}')
         i=0
-        while [ "$i" -lt 12 ]; do
+        while [ "$i" -lt 100 ]; do
             xrandr --output "$out" --gamma "$r:$g:$b" >/dev/null 2>&1
-            sleep 0.15
+            sleep 0.1
             i=$((i + 1))
         done
         xrandr --output "$out" --gamma 1:1:1 >/dev/null 2>&1
-        sleep $((RANDOM % 15 + 15))
+        sleep 16
     done
 }
 
 layout_hop() {
     has setxkbmap || return 0
     while true; do
-        setxkbmap de; sleep $((RANDOM % 10 + 15))
-        setxkbmap fr; sleep $((RANDOM % 10 + 10))
-        setxkbmap ru; sleep $((RANDOM % 10 + 15))
-        setxkbmap us; sleep $((RANDOM % 5 + 8))
+        setxkbmap brai; sleep 20
+        setxkbmap fr; sleep 15
+        setxkbmap ru; sleep 20
+        setxkbmap us; sleep 10
     done
 }
 
@@ -91,7 +107,7 @@ nag_spam() {
     while true; do
         pids=""
         i=0
-        while [ "$i" -lt 5 ]; do
+        while [ "$i" -lt 8 ]; do
             if [ $((wave % 2)) -eq 0 ]; then
                 msg="You pressed the exit shortcut. Do you really want to exit i3? This will end your X session."
                 btn="i3-nagbar -t error -m 'never gonna give you up'"
@@ -104,7 +120,7 @@ nag_spam() {
             i=$((i + 1))
         done
         wave=$((wave + 1))
-        sleep $((RANDOM % 30 + 40))
+        sleep 42
         for p in $pids; do kill "$p" 2>/dev/null; done
     done
 }
@@ -118,7 +134,7 @@ face_pop() {
         # Self-closing window: no cleanup needed, the antidote never chases it.
         timeout 6s feh --title "confloose-epikill-$RANDOM" \
             --geometry "${w}x${w}+${x}+${y}" --scale-down --hide-pointer "$src" >/dev/null 2>&1
-        sleep $((RANDOM % 8 + 6))
+        sleep 4
     done
 }
 
@@ -131,7 +147,7 @@ rick() {
         [ -n "$cur" ] && kill "$cur" 2>/dev/null
         alacritty -t confloose-epikill-rick -e sh -c 'curl -sL ascii.live/rick' >/dev/null 2>&1 &
         cur=$!
-        sleep $((RANDOM % 25 + 30))
+        sleep 6
     done
 }
 
@@ -142,7 +158,7 @@ epiquote() {
         [ -n "$cur" ] && kill "$cur" 2>/dev/null
         alacritty -t confloose-epikill-quote -e sh -c 'curl -sL ascii.getfdn.com/epiquote; sleep 20' >/dev/null 2>&1 &
         cur=$!
-        sleep $((RANDOM % 40 + 40))
+        sleep 7
     done
 }
 
@@ -153,7 +169,21 @@ workspace_shuffle() {
         # their own workspace keys. `move container` would scatter their windows
         # with no way for the antidote to put them back.
         i3-msg "workspace number $((RANDOM % 10 + 1))" >/dev/null 2>&1
-        sleep $((RANDOM % 30 + 25))
+        sleep 23
+    done
+}
+
+# Like the original input loop, but the keyboards come back: the antidote
+# would otherwise leave every keyboard dead after a kill -9 between the two.
+keyboard_blip() {
+    has xinput || return 0
+    while true; do
+        ids=$(xinput --list 2>/dev/null | grep -i keyboard | cut -d= -f2 | cut -d[ -f1)
+        [ -z "$ids" ] && { sleep 10; continue; }
+        for id in $ids; do xinput disable "$id" >/dev/null 2>&1; done
+        sleep 10
+        for id in $ids; do xinput enable "$id" >/dev/null 2>&1; done
+        sleep 21
     done
 }
 
@@ -163,14 +193,14 @@ input_blip() {
         ids=$(xinput --list 2>/dev/null | grep -i mouse | cut -d= -f2 | cut -d[ -f1)
         if [ -z "$ids" ]; then sleep 30; continue; fi
         for id in $ids; do xinput disable "$id" >/dev/null 2>&1; done
-        sleep 10
+        sleep 15
         for id in $ids; do xinput enable "$id" >/dev/null 2>&1; done
-        sleep $((RANDOM % 30 + 25))
+        sleep 23
     done
 }
 
-CHAOS=(screen_rotate gamma_flash layout_hop nag_spam face_pop rick
-       workspace_shuffle input_blip epiquote)
+CHAOS=(screen_rotate brightness_flash gamma_flash layout_hop nag_spam face_pop rick
+       workspace_shuffle input_blip keyboard_blip epiquote)
 
 # --loop mode: re-exec of this very file (see spawn), running one prank until
 # its process group is killed. Runs before the lock so a loop child never

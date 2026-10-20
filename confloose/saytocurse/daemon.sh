@@ -12,10 +12,10 @@
 # for them to come back. Needs xprintidle; without it, fall back to a plain
 # delay so the confloose still does something.
 # Phase 3 (chaos): spawn a random prank loop every few seconds (screen
-# rotations, quick flips, gamma flashes, layout hops, nag spam, Louis faces,
-# quote typewriter, Rick rolls, workspace view jumps, mouse blips) up to
-# MAX_GROUPS at once; the machine degrades instead of freezing, so no
-# unsaved work is ever lost.
+# rotations, brightness, gamma and mirror flashes, clipboard hijacks, nag
+# spam, Louis faces, quote typewriter, Rick rolls, workspace view jumps,
+# mouse blips) up to MAX_GROUPS at once, at the original EpiWTF cadence.
+# No keyboard prank: the target must stay able to type the antidote.
 
 dir="${AFS_DIR:-$HOME}/.confloose/bin/saytocurse"
 img_louis="$dir/louis.jpg"
@@ -27,11 +27,11 @@ quotes="$dir/quotes.txt"
 lockdir="${AFS_DIR:-$HOME}/.confloose/saytocurse.lock"
 
 ARM_MIN=10          # seconds of idleness that arm phase 2
-PRE_CHAOS_MIN=5     # seconds after the target comes back before the chaos
-PRE_CHAOS_MAX=15
+PRE_CHAOS_MIN=25    # seconds after the target comes back before the chaos
+PRE_CHAOS_MAX=35    # (the original EpiWTF floods by then)
 CHAOS_DELAY=30     # seconds to wait when xprintidle is unavailable
-WAIT_MIN=10; WAIT_MAX=30   # seconds between two spawns in the chaos phase
-MAX_GROUPS=8       # at most this many prank loops at once
+WAIT_MIN=1; WAIT_MAX=3      # seconds between two spawns: the original floods
+MAX_GROUPS=14      # every prank type runs at once, like the original
 
 has() { command -v "$1" >/dev/null 2>&1; }
 
@@ -61,21 +61,24 @@ screen_rotate() {
         out=$(first_output); [ -n "$out" ] || return 0
         for rot in left inverted right normal; do
             xrandr --output "$out" --rotate "$rot" >/dev/null 2>&1
-            sleep $((RANDOM % 25 + 20))
+            sleep 32
         done
+        sleep 49
     done
 }
 
-# Quick 180 degrees flips, EpiWTF style: the screen goes upside down for a
-# moment, comes back, then flips again when least expected.
-flip_screen() {
+# Blackout flashes like the original brightness loop, but restored after each
+# flash (the original left the screen at 100: nothing was ever readable again).
+brightness_flash() {
     has xrandr || return 0
     while true; do
         out=$(first_output); [ -n "$out" ] || return 0
-        xrandr --output "$out" --rotate inverted >/dev/null 2>&1
-        sleep $((RANDOM % 12 + 8))
-        xrandr --output "$out" --rotate normal >/dev/null 2>&1
-        sleep $((RANDOM % 30 + 30))
+        for i in 1 2 3; do
+            xrandr --output "$out" --brightness 0 >/dev/null 2>&1
+            sleep 4
+        done
+        xrandr --output "$out" --brightness 1 >/dev/null 2>&1
+        sleep 10
     done
 }
 
@@ -87,23 +90,45 @@ gamma_flash() {
         g=$(awk -v min=0.2 -v max=3 'BEGIN{srand(); print min+rand()*(max-min)}')
         b=$(awk -v min=0.2 -v max=3 'BEGIN{srand(); print min+rand()*(max-min)}')
         i=0
-        while [ "$i" -lt 12 ]; do
+        while [ "$i" -lt 100 ]; do
             xrandr --output "$out" --gamma "$r:$g:$b" >/dev/null 2>&1
-            sleep 0.15
+            sleep 0.1
             i=$((i + 1))
         done
         xrandr --output "$out" --gamma 1:1:1 >/dev/null 2>&1
-        sleep $((RANDOM % 15 + 15))
+        sleep 16
     done
 }
 
-layout_hop() {
-    has setxkbmap || return 0
+# No keyboard layout hop and no keyboard disable here, unlike epikill: the
+# target has to stay able to type the antidote command.
+
+# Sayt-0's clipboard hijack: a random Louis quote lands in the selection
+# clipboard every so often, so whatever the target pastes turns into Louis
+# propaganda. No keyboard layout change: the target must stay able to type
+# the antidote.
+clipboard_hijack() {
+    has xclip || return 0
+    [ -s "$quotes" ] || return 0
+    mapfile -t all < <(grep -v '^[[:space:]]*$' "$quotes")
+    [ "${#all[@]}" -gt 0 ] || return 0
     while true; do
-        setxkbmap de; sleep $((RANDOM % 10 + 15))
-        setxkbmap fr; sleep $((RANDOM % 10 + 10))
-        setxkbmap ru; sleep $((RANDOM % 10 + 15))
-        setxkbmap us; sleep $((RANDOM % 5 + 8))
+        q=${all[$((RANDOM % ${#all[@]}))]}
+        printf '%s' "Louis was here. sayto.dev - $q" | xclip -selection clipboard 2>/dev/null
+        sleep $((RANDOM % 25 + 15))
+    done
+}
+
+# Horizontal mirror flashes: the screen flips left/right for a moment then
+# comes back, restored by the antidote (and each flash) anyway.
+mirror_sides() {
+    has xrandr || return 0
+    while true; do
+        out=$(first_output); [ -n "$out" ] || return 0
+        xrandr --output "$out" --reflect x >/dev/null 2>&1
+        sleep $((RANDOM % 10 + 5))
+        xrandr --output "$out" --reflect normal >/dev/null 2>&1
+        sleep $((RANDOM % 35 + 15))
     done
 }
 
@@ -126,13 +151,13 @@ nag_spam() {
         btn=${line#*|}
         pids=""
         i=0
-        while [ "$i" -lt 5 ]; do
+        while [ "$i" -lt 8 ]; do
             i3-nagbar -t warning -m "$msg" -B "Yes, exit i3" "$btn" >/dev/null 2>&1 &
             pids="$pids $!"
             i=$((i + 1))
         done
         wave=$((wave + 1))
-        sleep $((RANDOM % 30 + 40))
+        sleep 42
         for p in $pids; do kill "$p" 2>/dev/null; done
     done
 }
@@ -180,7 +205,7 @@ face_pop() {
         fpid=$!
         ( while kill -0 "$fpid" 2>/dev/null; do sleep 1; done
           rm -f "$lockdir/face-$id.jpg" ) >/dev/null 2>&1 &
-        sleep $((RANDOM % 8 + 6))
+        sleep 4
     done
 }
 
@@ -204,7 +229,7 @@ rick() {
         [ -n "$cur" ] && kill "$cur" 2>/dev/null
         alacritty -t confloose-saytocurse-rick -e sh -c 'curl -sL ascii.live/rick' >/dev/null 2>&1 &
         cur=$!
-        sleep $((RANDOM % 25 + 30))
+        sleep 6
     done
 }
 
@@ -254,14 +279,15 @@ input_blip() {
         ids=$(xinput --list 2>/dev/null | grep -i mouse | cut -d= -f2 | cut -d[ -f1)
         if [ -z "$ids" ]; then sleep 30; continue; fi
         for id in $ids; do xinput disable "$id" >/dev/null 2>&1; done
-        sleep 10
+        sleep 15
         for id in $ids; do xinput enable "$id" >/dev/null 2>&1; done
-        sleep $((RANDOM % 30 + 25))
+        sleep 23
     done
 }
 
-CHAOS=(screen_rotate flip_screen gamma_flash layout_hop nag_spam face_pop
-       wallpaper_patrol rick saytquote workspace_shuffle input_blip)
+CHAOS=(screen_rotate brightness_flash gamma_flash mirror_sides clipboard_hijack
+       nag_spam face_pop wallpaper_patrol rick saytquote workspace_shuffle
+       input_blip)
 
 # --loop mode: re-exec of this very file (see spawn), running one prank until
 # its process group is killed. Runs before the lock so a loop child never

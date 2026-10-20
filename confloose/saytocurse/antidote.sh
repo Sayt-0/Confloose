@@ -56,13 +56,19 @@ if [ -f "$bindir/layout.bak" ]; then
     done < "$bindir/layout.bak"
 fi
 rm -rf "$bindir"
-curl -fsSL "${CONFLOOSE_BASE:-https://sayt-0.github.io/Confloose}/confloose/bashrc_antidote_base.sh" | sh -s -- "saytocurse"
 
-# The exec_always restart line in the i3 config goes with the rc lines:
-# nothing must survive a logout except the antidote itself.
+# Sayt-0's own tag (this confloose is his, not "by leo"): the i3 restart line
+# and the rc lines all carry it, one sed per file sweeps them all. The
+# brackets are escaped: unescaped, [saytocurse] is a regex character class
+# and the pattern never matches the literal tag.
+tag="confloose by Sayt-0 \\[saytocurse\\]"
 conf="$HOME/.config/i3/config"
-[ -f "$conf" ] && sed -i '/confloose by leo \[saytocurse\]/d' "$conf"
+[ -f "$conf" ] && sed -i "/$tag/d" "$conf"
 i3-msg restart >/dev/null 2>&1 || true
+for name in bashrc zshrc; do
+    rc="$HOME/.$name"
+    [ -f "$rc" ] && sed -i "/$tag/d" "$rc"
+done
 
 # Restore what the chaos loops left behind live: screen rotation, gamma,
 # keyboard layout. A literal newline for IFS, not $'\n': that is a bashism.
